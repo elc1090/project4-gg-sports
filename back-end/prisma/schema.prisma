@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Sport {
+  id            Int     @id @default(autoincrement())
+  name          String
+  slug          String  @unique
+  logoUrl   	  String
+  competitions  Competition[]
+  apis          Api[]
+  teams         Team[]
+  @@map("sports")
+}
+
+model Api {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  sportId     Int
+  sport       Sport     @relation(fields: [sportId], references: [id])
+  host        String
+  healthCheck String
+  key         String
+  secret      String?
+  data        ApiData[]
+  @@map("apis")
+}
+
+enum DataTypes {
+  COMPETITION
+  TEAM
+  MATCHE
+  SEASON
+  ROUND
+}
+
+model Data {
+  id          Int           @id @default(autoincrement())
+  type        DataTypes
+  apis        ApiData[]
+  competition Competition?  @relation()
+  season      Season?       @relation()
+  team        Team?         @relation()
+  @@map("data")
+}
+
+model ApiData {
+  id          Int       @id @default(autoincrement())
+  api         Api       @relation(fields: [apiId], references: [id])
+  apiId       Int       // relation scalar field (used in the `@relation` attribute above)
+  data        Data      @relation(fields: [dataId], references: [id])
+  dataId      Int       // relation scalar field (used in the `@relation` attribute above)
+  idInApi     String
+  createdAt   DateTime  @default(now())
+  @@map("api_data")
+}
+
+model Country {
+  id            Int     @id @default(autoincrement())
+  name          String
+  slug          String  @unique
+  code          String?
+  flagUrl       String?
+  competitions  Competition[]
+  teams         Team[]
+  @@map("countries")
+}
+
+enum CompetitionStatus {
+  AVAILABLE
+  UNAVAILABLE
+  OUT_OF_SEASON
+  COMING_SOON
+}
+
+enum Gender {
+  MEN
+  WOMEN
+}
+
+model Competition {
+  dataId    Int     @id
+  data      Data    @relation(fields: [dataId], references: [id])
+  sport     Sport   @relation(fields: [sportId], references: [id])
+  sportId   Int     // relation scalar field (used in the `@relation` attribute above)
+  country   Country @relation(fields: [countryId], references: [id])
+  countryId Int     // relation scalar field (used in the `@relation` attribute above)
+  name      String
+  slug      String  @unique
+  logoUrl   String
+  gender    Gender?
+  status    CompetitionStatus
+  seasons   Season[]
+  @@map("competitions")
+}
+
+model Season {
+  dataId        Int         @id
+  data          Data        @relation(fields: [dataId], references: [id])
+  competition   Competition @relation(fields: [competitionId], references: [dataId])
+  competitionId Int
+  year          Int
+  startDate     DateTime
+  endDate       DateTime
+  createdAt     DateTime    @default(now())
+  @@map("seasons")
+}
+
+model Team {
+  dataId        Int         @id
+  data          Data        @relation(fields: [dataId], references: [id])
+  countryId     Int
+  country       Country     @relation(fields: [countryId], references: [id])
+  sportId       Int
+  sport         Sport       @relation(fields: [sportId], references: [id])
+  name          String
+  slug          String
+  shortName     String?
+  code          String
+  founded       Int?
+  logoUrl       String?
+  @@map("teams")
+}
