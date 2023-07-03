@@ -1,21 +1,70 @@
 import { Competition, Gender, PrismaClient } from 'prisma/prisma-client'
-import { CompetitionData, SeasonData, TeamData } from '../types/LoadDataTypes'
+import { CompetitionData, MatchData, SeasonData, TeamData } from '../types/LoadDataTypes'
 import slugify from 'slugify'
 import competitions from '../data/competitions'
 import Sportradar from './Sportradar'
 const prisma = new PrismaClient()
 
-
 class LoadData {
+	private async loadMatch(matchData: MatchData) {
+		// await prisma.$transaction(async trx => {
+		// 	const matchIsLoaded = await prisma.apiData.findFirst({
+		// 		where: {
+		// 			apiId: matchData.apiId,
+		// 			idInApi: matchData.id
+		// 		}
+		// 	})
+		// 	if (!matchIsLoaded) {
+		// 		const data = await trx.data.create({
+		// 			data: {
+		// 				type: "MATCH"
+		// 			}
+		// 		})
+		// 		await trx.apiData.create({
+		// 			data: {
+		// 				apiId: matchData.apiId,
+		// 				dataId: data.id,
+		// 				idInApi: matchData.id
+		// 			}
+		// 		})
+		// 		const roundIsLoaded = await trx.round.findFirst({})
+		// 		await trx.round
+		// 		const slug = slugify(matchData.name, { lower: true })
+		// 		await trx.match.create({
+		// 			data: {
+		// 				dataId: data.id,
+		// 				countryId: matchData.countryId,
+		// 				sportId: matchData.sportId,
+		// 				name: matchData.name,
+		// 				slug,
+		// 				shortName: matchData.shortName,
+		// 				code: matchData.code,
+		// 				founded: matchData.founded,
+		// 				logoUrl: matchData.logoUrl,
+		// 			}
+		// 		})
+		// 	}
+		// })
+	}
+
+	public async loadMatches(seasonId: number) {
+		const api = await prisma.api.findFirstOrThrow({ where: { slug: "sportradar" }})
+		const schedules = await Sportradar.teamsBySeason(seasonId)
+		for (const match of schedules) {
+			const roundIsLoaded = await prisma.round.findFirst({})
+		}
+
+	}
+
 	private async loadTeam(teamData: TeamData) {
 		await prisma.$transaction(async trx => {
-			const isLoaded = await prisma.apiData.findFirst({
+			const teamIsLoaded = await prisma.apiData.findFirst({
 				where: {
 					apiId: teamData.apiId,
 					idInApi: teamData.id
 				}
 			})
-			if (!isLoaded) {
+			if (!teamIsLoaded) {
 				const data = await trx.data.create({
 					data: {
 						type: "TEAM"
@@ -42,8 +91,51 @@ class LoadData {
 						logoUrl: teamData.logoUrl,
 					}
 				})
+				await trx.teamSeason.create({
+					data: {
+						teamId: data.id,
+						seasonId: teamData.seasonId
+					}
+				})
+			} else {
+				const seasonIsLoaded = await prisma.teamSeason.findFirst({
+					where: {
+						teamId: teamIsLoaded.dataId,
+						seasonId: teamData.seasonId,
+					}
+				})
+				if (!seasonIsLoaded) {
+					await trx.teamSeason.create({
+						data: {
+							teamId: teamIsLoaded.dataId,
+							seasonId: teamData.seasonId,
+						}
+					})
+				}
 			}
 		})
+	}
+
+	public async loadTeams(seasonId: number) {
+		const api = await prisma.api.findFirstOrThrow({ where: { slug: "sportradar" }})
+		const season = await prisma.season.findUniqueOrThrow({ where: { dataId: seasonId } })
+		const competition = await prisma.competition.findUniqueOrThrow({ where: { dataId: season.competitionId } })
+		const teams = await Sportradar.teamsBySeason(seasonId)
+		for (const team of teams) {
+			const slug = slugify(team.name, { lower: true })
+			const newData: TeamData = {
+				id: team.id,
+				apiId: api.id,
+				seasonId,
+				countryId: competition.countryId,
+				sportId: competition.sportId,
+				name: team.name,
+				slug,
+				shortName: team.short_name,
+				code: team.abbreviation,
+			}
+			await this.loadTeam(newData)
+		}
 	}
 
   private async loadSeason(seasonData: SeasonData) {

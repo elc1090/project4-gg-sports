@@ -19,10 +19,11 @@ class CompetitionsController {
       res.json({ error: 'Competição já foi carregada' })
       return
     }
-    // await LoadData.loadSeasons(competition)
+    // await LoadData.loadSeasons(competition) //ok
     const seasons = await prisma.season.findMany({ where: { competitionId: competition.dataId } })
     for (const season of seasons) {
-      // await LoadData.loadTeams(season.dataId)
+      // await LoadData.loadTeams(season.dataId) // ok
+      // await LoadData.loadMatches(season.dataId) // WIP
     }
 
     res.status(201)

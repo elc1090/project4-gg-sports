@@ -39,7 +39,7 @@ model Api {
 enum DataTypes {
   COMPETITION
   TEAM
-  MATCHE
+  MATCH
   SEASON
   ROUND
 }
@@ -51,6 +51,7 @@ model Data {
   competition Competition?  @relation()
   season      Season?       @relation()
   team        Team?         @relation()
+  match       Match?        @relation()
   @@map("data")
 }
 
@@ -105,29 +106,99 @@ model Competition {
 }
 
 model Season {
-  dataId        Int         @id
-  data          Data        @relation(fields: [dataId], references: [id])
-  competition   Competition @relation(fields: [competitionId], references: [dataId])
+  dataId        Int           @id
+  data          Data          @relation(fields: [dataId], references: [id])
+  competition   Competition   @relation(fields: [competitionId], references: [dataId])
   competitionId Int
   year          Int
   startDate     DateTime
   endDate       DateTime
-  createdAt     DateTime    @default(now())
+  createdAt     DateTime      @default(now())
+  teams         TeamSeason[]  @relation()
+  rounds        Round[]       @relation()
   @@map("seasons")
 }
 
 model Team {
-  dataId        Int         @id
-  data          Data        @relation(fields: [dataId], references: [id])
+  dataId        Int           @id
+  data          Data          @relation(fields: [dataId], references: [id])
   countryId     Int
-  country       Country     @relation(fields: [countryId], references: [id])
+  country       Country       @relation(fields: [countryId], references: [id])
   sportId       Int
-  sport         Sport       @relation(fields: [sportId], references: [id])
+  sport         Sport         @relation(fields: [sportId], references: [id])
   name          String
   slug          String
   shortName     String?
   code          String
   founded       Int?
   logoUrl       String?
+  seasons       TeamSeason[]  @relation()
+  homeMatc      Match[]       @relation(name: "homeTeam")
+  awayMatch     Match[]       @relation(name: "awayTeam")
+  stats         Stat[]        @relation()
   @@map("teams")
+}
+
+model TeamSeason {
+  id        Int     @id @default(autoincrement())
+  teamId    Int
+  team      Team    @relation(fields: [teamId], references: [dataId])
+  seasonId  Int
+  season    Season  @relation(fields: [seasonId], references: [dataId])
+  @@map("team_seasons")
+}
+
+model Round {
+  id        Int     @id @default(autoincrement())
+  seasonId  Int
+  season    Season  @relation(fields: [seasonId], references: [dataId])
+  name      String?
+  order     Int
+  startDate DateTime?
+  endDate   DateTime?
+  matches   Match[] @relation()
+  @@map("rounds")
+}
+
+model Match {
+  dataId      Int     @id
+  data        Data    @relation(fields: [dataId], references: [id])
+  roundId     Int
+  round       Round   @relation(fields: [roundId], references: [id])
+  homeTeamId  Int
+  homeTeam    Team    @relation(fields: [homeTeamId], references: [dataId], name: "homeTeam")
+  awayTeamId  Int
+  awayTeam    Team    @relation(fields: [awayTeamId], references: [dataId], name: "awayTeam")
+  date        DateTime
+  stats       Stat[]  @relation()
+  @@map("matches")
+}
+
+model StatType {
+  id    Int     @id @default(autoincrement())
+  name  String
+  slug  String
+  stats Stat[]  @relation()
+  @@map("stat_types")
+}
+
+enum StatPeriod {
+  TOTAL
+  FIRST
+  SECOND
+  EXTRA_TOTAL
+  EXTRA_FIRST
+  EXTRA_SECOND
+  PENALTY
+}
+model Stat {
+  id          Int       @id @default(autoincrement())
+  matchId     Int
+  match       Match     @relation(fields: [matchId], references: [dataId])
+  teamId      Int
+  team        Team      @relation(fields: [teamId], references: [dataId])
+  statTypeId  Int
+  statType    StatType  @relation(fields: [statTypeId], references: [id])
+  period      StatPeriod
+  @@map("stats")
 }

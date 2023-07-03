@@ -46,7 +46,12 @@ class Sportradar {
   }
 
   public async seasonSchedule(seasonId: number) {
-    const subUrl = `/seasons/sr:season:${seasonId}/schedules`
+    const apiData = await prisma.apiData.findFirstOrThrow({
+      where: {
+        dataId: seasonId
+      }
+    })
+    const subUrl = `/seasons/${apiData.idInApi}/schedules`
     const data = await this.get(subUrl)
     
     return data.schedules

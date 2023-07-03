@@ -14,7 +14,6 @@ class Init {
 	}
 	
 	public async initSoccer() {
-
 		let sport = await prisma.sport.findFirst({ where: { slug: 'football' } })
 		if (!sport)
 			sport = await prisma.sport.create({
@@ -40,6 +39,18 @@ class Init {
 		
 		await this.loadCountries()
 		await this.loadCompetitions(sport.id, api.id)
+		await this.loadStatTypes()
+	}
+
+	private async loadStatTypes() {
+		const goal = await prisma.statType.findFirst({ where: { slug: 'goal' } })
+		if (!goal)
+			await prisma.statType.create({
+				data: {
+					name: 'Goal',
+					slug: 'goal',
+				}
+			})
 	}
 
   private async loadCountries() {

@@ -1,6 +1,17 @@
+export type MatchData = {
+  id: string
+  apiId: number
+  seasonId: number
+  roundOrder: number
+  name?: string
+  startDate: string
+  endDate: string
+}
+
 export type TeamData = {
   id: string
   apiId: number
+  seasonId: number
   countryId: number
   sportId: number
   name: string
