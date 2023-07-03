@@ -1,5 +1,5 @@
-import { Competition, Gender, PrismaClient } from 'prisma/prisma-client'
-import { CompetitionData, MatchData, SeasonData, TeamData } from '../types/LoadDataTypes'
+import { Competition, Gender, Match, PrismaClient } from 'prisma/prisma-client'
+import { CompetitionData, GoalStat, MatchData, SeasonData, TeamData } from '../types/LoadDataTypes'
 import slugify from 'slugify'
 import competitions from '../data/competitions'
 import Sportradar from './Sportradar'
@@ -7,54 +7,137 @@ const prisma = new PrismaClient()
 
 class LoadData {
 	private async loadMatch(matchData: MatchData) {
-		// await prisma.$transaction(async trx => {
-		// 	const matchIsLoaded = await prisma.apiData.findFirst({
-		// 		where: {
-		// 			apiId: matchData.apiId,
-		// 			idInApi: matchData.id
-		// 		}
-		// 	})
-		// 	if (!matchIsLoaded) {
-		// 		const data = await trx.data.create({
-		// 			data: {
-		// 				type: "MATCH"
-		// 			}
-		// 		})
-		// 		await trx.apiData.create({
-		// 			data: {
-		// 				apiId: matchData.apiId,
-		// 				dataId: data.id,
-		// 				idInApi: matchData.id
-		// 			}
-		// 		})
-		// 		const roundIsLoaded = await trx.round.findFirst({})
-		// 		await trx.round
-		// 		const slug = slugify(matchData.name, { lower: true })
-		// 		await trx.match.create({
-		// 			data: {
-		// 				dataId: data.id,
-		// 				countryId: matchData.countryId,
-		// 				sportId: matchData.sportId,
-		// 				name: matchData.name,
-		// 				slug,
-		// 				shortName: matchData.shortName,
-		// 				code: matchData.code,
-		// 				founded: matchData.founded,
-		// 				logoUrl: matchData.logoUrl,
-		// 			}
-		// 		})
-		// 	}
-		// })
+		return await prisma.$transaction(async trx => {
+			const matchIsLoaded = await trx.apiData.findFirst({
+				where: {
+					apiId: matchData.apiId,
+					idInApi: matchData.id,
+				}
+			})
+			if (!matchIsLoaded) {
+				const data = await trx.data.create({
+					data: {
+						type: 'MATCH',
+					}
+				})
+				await trx.apiData.create({
+					data: {
+						apiId: matchData.apiId,
+						dataId: data.id,
+						idInApi: matchData.id,
+					}
+				})
+				const homeTeam = await trx.apiData.findFirst({
+					where: {
+						idInApi: matchData.homeTeamId,
+						apiId: matchData.apiId,
+					}
+				})
+				const awayTeam = await trx.apiData.findFirst({
+					where: {
+						idInApi: matchData.awayTeamId,
+						apiId: matchData.apiId,
+					}
+				})
+				return await trx.match.create({
+					data: {
+						dataId: data.id,
+						roundId: matchData.roundId,
+						homeTeamId: homeTeam!.dataId,
+						awayTeamId: awayTeam!.dataId,
+						date: new Date(matchData.date),
+						dateConfirmed: matchData.dateConfirmed,
+					}
+				})
+			}
+		})
 	}
 
 	public async loadMatches(seasonId: number) {
-		const api = await prisma.api.findFirstOrThrow({ where: { slug: "sportradar" }})
+		const api = await prisma.api.findFirstOrThrow({ where: { slug: 'sportradar' }})
 		const schedules = await Sportradar.teamsBySeason(seasonId)
-		for (const match of schedules) {
-			const roundIsLoaded = await prisma.round.findFirst({})
-		}
+		for (const schedule of schedules) {
+			let round = await prisma.round.findFirst({
+				where: {
+					seasonId,
+					order: schedule.sport_event.sport_event_context.round.number
+				}
+			})
+			if (!round) {
+				round = await prisma.round.create({
+					data: {
+						seasonId,
+						order: schedule.sport_event.sport_event_context.round.number
+					}
+				})
+			}
+			const eventData = schedule.sport_event
+			const matchData: MatchData = {
+				id: eventData.id,
+				apiId: api.id,
+				roundId: round.id,
+				homeTeamId: eventData.competitors.find((c: any) => c.qualifier === 'home'),
+				awayTeamId: eventData.competitors.find((c: any) => c.qualifier === 'away'),
+				date: eventData.start_time,
+				dateConfirmed: eventData.start_time_confirmed,
+				finished: schedule.sport_event_status.status === 'closed',
+			}
+			const match = await this.loadMatch(matchData)
 
+			// create stats
+			const scores = schedule.sport_event_status.period_scores
+			const homeStat: GoalStat = {
+				matchId: match!.dataId,
+				teamId: match!.homeTeamId,
+				firstPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 1).home_score,
+				secondPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 2).home_score,
+				totalPeriod: schedule.sport_event_status.home_score,
+			}
+			await this.loadGoalStat(homeStat)
+
+			const awayStat: GoalStat = {
+				matchId: match!.dataId,
+				teamId: match!.awayTeamId,
+				firstPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 1).away_score,
+				secondPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 2).away_score,
+				totalPeriod: schedule.sport_event_status.away_score,
+			}
+			await this.loadGoalStat(awayStat)
+			// const matchStatus = schedule.sport_event_status
+		}
 	}
+
+	private async loadGoalStat(goalStat: GoalStat) {
+		const statType = await prisma.statType.findFirst({ where: { slug: 'goal' } })
+		await prisma.stat.create({
+			data: {
+				matchId: goalStat.matchId,
+				teamId: goalStat.teamId,
+				statTypeId: statType!.id,
+				period: 'TOTAL',
+				value: goalStat.totalPeriod,
+			}
+		})
+		await prisma.stat.create({
+			data: {
+				matchId: goalStat.matchId,
+				teamId: goalStat.teamId,
+				statTypeId: statType!.id,
+				period: 'FIRST',
+				value: goalStat.firstPeriod,
+			}
+		})
+		await prisma.stat.create({
+			data: {
+				matchId: goalStat.matchId,
+				teamId: goalStat.teamId,
+				statTypeId: statType!.id,
+				period: 'SECOND',
+				value: goalStat.secondPeriod,
+			}
+		})
+	}
+
 
 	private async loadTeam(teamData: TeamData) {
 		await prisma.$transaction(async trx => {
@@ -67,7 +150,7 @@ class LoadData {
 			if (!teamIsLoaded) {
 				const data = await trx.data.create({
 					data: {
-						type: "TEAM"
+						type: 'TEAM'
 					}
 				})
 				await trx.apiData.create({
@@ -117,7 +200,7 @@ class LoadData {
 	}
 
 	public async loadTeams(seasonId: number) {
-		const api = await prisma.api.findFirstOrThrow({ where: { slug: "sportradar" }})
+		const api = await prisma.api.findFirstOrThrow({ where: { slug: 'sportradar' }})
 		const season = await prisma.season.findUniqueOrThrow({ where: { dataId: seasonId } })
 		const competition = await prisma.competition.findUniqueOrThrow({ where: { dataId: season.competitionId } })
 		const teams = await Sportradar.teamsBySeason(seasonId)
@@ -149,7 +232,7 @@ class LoadData {
 			if (!isLoaded) {
 				const data = await trx.data.create({
 					data: {
-						type: "SEASON"
+						type: 'SEASON'
 					}
 				})
 				await trx.apiData.create({
@@ -173,7 +256,7 @@ class LoadData {
   }
 
 	public async loadSeasons(competition: Competition) {
-		const api = await prisma.api.findFirstOrThrow({ where: { slug: "sportradar" }})
+		const api = await prisma.api.findFirstOrThrow({ where: { slug: 'sportradar' }})
 		
     // load seasons
     const seasonsData = await Sportradar.seasonsByCompetition(competition.dataId)
@@ -202,7 +285,7 @@ class LoadData {
 			if (!isLoaded) {
 				const data = await trx.data.create({
 					data: {
-						type: "COMPETITION"
+						type: 'COMPETITION'
 					}
 				})
 				await trx.apiData.create({
@@ -219,8 +302,8 @@ class LoadData {
 						countryId: competitionData.countryId,
 						name: competitionData.name,
 						slug: competitionData.slug,
-						logoUrl: competitionData.logoUrl || "",
-						gender: competitionData.gender?.toUpperCase() as Gender || "MEN",
+						logoUrl: competitionData.logoUrl || '',
+						gender: competitionData.gender?.toUpperCase() as Gender || 'MEN',
 						status: competitionData.status
 					}
 				})
@@ -246,7 +329,7 @@ class LoadData {
 					name: competition.name,
 					slug,
 					gender: competition.gender as Gender,
-					status: "UNAVAILABLE",
+					status: 'UNAVAILABLE',
 				}
 				await this.loadCompetition(competitionData, sportId)
 			}

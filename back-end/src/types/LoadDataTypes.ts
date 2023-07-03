@@ -1,11 +1,20 @@
+export type GoalStat = {
+  matchId: number
+  teamId: number
+  firstPeriod: number
+  secondPeriod: number
+  totalPeriod: number
+}
+
 export type MatchData = {
   id: string
   apiId: number
-  seasonId: number
-  roundOrder: number
-  name?: string
-  startDate: string
-  endDate: string
+  roundId: number
+  homeTeamId: string
+  awayTeamId: string
+  date: string
+  dateConfirmed: boolean
+  finished: boolean
 }
 
 export type TeamData = {
@@ -29,8 +38,8 @@ export type CompetitionData = {
   name: string
   slug: string
   logoUrl?: string
-	gender?: "MEN" | "WOMEN"
-	status: "AVAILABLE" | "UNAVAILABLE" | "OUT_OF_SEASON" | "COMING_SOON"
+	gender?: 'MEN' | 'WOMEN'
+	status: 'AVAILABLE' | 'UNAVAILABLE' | 'OUT_OF_SEASON' | 'COMING_SOON'
 }
 
 export type SeasonData = {

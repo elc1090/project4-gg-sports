@@ -5,12 +5,21 @@ import competitions from '../data/competitions'
 import slugify from 'slugify'
 import { env } from 'process'
 import LoadData from './LoadData'
+import schedule from '../data/schedule'
 
 
 
 class Init {
 	public async test() {
-		console.log("test route");
+		console.log('test route');
+		// const status = schedule.schedules.map(s => s.sport_event_status.status)
+		// const status2 = new Set(status)
+		// console.log(status2);
+		
+		const scores = schedule.schedules.filter(s => s.sport_event_status.status === 'closed') 
+		const score = scores.filter(s => s.sport_event_status.period_scores && s.sport_event_status.period_scores.length > 2)
+		console.log(score);
+		
 	}
 	
 	public async initSoccer() {
@@ -18,9 +27,9 @@ class Init {
 		if (!sport)
 			sport = await prisma.sport.create({
 				data: {
-					name: "Football",
-					slug: "football",
-					logoUrl: ""
+					name: 'Football',
+					slug: 'football',
+					logoUrl: ''
 				}
 			})
 		const host = env.SPORTRADAR_HOST as string
@@ -28,7 +37,7 @@ class Init {
 		if (!api)
 			api = await prisma.api.create({
 				data: {
-					name: "Sportradar",
+					name: 'Sportradar',
 					slug: 'sportradar',
 					sportId: sport.id,
 					host,

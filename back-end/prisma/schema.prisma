@@ -132,6 +132,7 @@ model Team {
   code          String
   founded       Int?
   logoUrl       String?
+  gender        Gender?
   seasons       TeamSeason[]  @relation()
   homeMatc      Match[]       @relation(name: "homeTeam")
   awayMatch     Match[]       @relation(name: "awayTeam")
@@ -161,16 +162,17 @@ model Round {
 }
 
 model Match {
-  dataId      Int     @id
-  data        Data    @relation(fields: [dataId], references: [id])
-  roundId     Int
-  round       Round   @relation(fields: [roundId], references: [id])
-  homeTeamId  Int
-  homeTeam    Team    @relation(fields: [homeTeamId], references: [dataId], name: "homeTeam")
-  awayTeamId  Int
-  awayTeam    Team    @relation(fields: [awayTeamId], references: [dataId], name: "awayTeam")
-  date        DateTime
-  stats       Stat[]  @relation()
+  dataId        Int     @id
+  data          Data    @relation(fields: [dataId], references: [id])
+  roundId       Int
+  round         Round   @relation(fields: [roundId], references: [id])
+  homeTeamId    Int
+  homeTeam      Team    @relation(fields: [homeTeamId], references: [dataId], name: "homeTeam")
+  awayTeamId    Int
+  awayTeam      Team    @relation(fields: [awayTeamId], references: [dataId], name: "awayTeam")
+  date          DateTime
+  dateConfirmed Boolean
+  stats         Stat[]  @relation()
   @@map("matches")
 }
 
@@ -200,5 +202,6 @@ model Stat {
   statTypeId  Int
   statType    StatType  @relation(fields: [statTypeId], references: [id])
   period      StatPeriod
+  value       Int
   @@map("stats")
 }
