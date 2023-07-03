@@ -16,9 +16,9 @@ class Init {
 		// const status2 = new Set(status)
 		// console.log(status2);
 		
-		const scores = schedule.schedules.filter(s => s.sport_event_status.status === 'closed') 
-		const score = scores.filter(s => s.sport_event_status.period_scores && s.sport_event_status.period_scores.length > 2)
-		console.log(score);
+		const scores = schedule.schedules.filter(s => !s.sport_event.sport_event_context) 
+		// const score = scores.filter(s => s.sport_event_status.period_scores && s.sport_event_status.period_scores.length > 2)
+		console.log(scores);
 		
 	}
 	

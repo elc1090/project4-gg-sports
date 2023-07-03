@@ -8,13 +8,13 @@ const prisma = new PrismaClient()
 class LoadData {
 	private async loadMatch(matchData: MatchData) {
 		return await prisma.$transaction(async trx => {
-			const matchIsLoaded = await trx.apiData.findFirst({
+			const matchApiData = await trx.apiData.findFirst({
 				where: {
 					apiId: matchData.apiId,
 					idInApi: matchData.id,
 				}
 			})
-			if (!matchIsLoaded) {
+			if (!matchApiData) {
 				const data = await trx.data.create({
 					data: {
 						type: 'MATCH',
@@ -39,7 +39,7 @@ class LoadData {
 						apiId: matchData.apiId,
 					}
 				})
-				return await trx.match.create({
+				const match = await trx.match.create({
 					data: {
 						dataId: data.id,
 						roundId: matchData.roundId,
@@ -49,13 +49,17 @@ class LoadData {
 						dateConfirmed: matchData.dateConfirmed,
 					}
 				})
+				
+				return match
+			} else {
+				return await trx.match.findUnique({ where: { dataId: matchApiData.dataId } })
 			}
 		})
 	}
 
 	public async loadMatches(seasonId: number) {
 		const api = await prisma.api.findFirstOrThrow({ where: { slug: 'sportradar' }})
-		const schedules = await Sportradar.teamsBySeason(seasonId)
+		const schedules = await Sportradar.seasonSchedule(seasonId)
 		for (const schedule of schedules) {
 			let round = await prisma.round.findFirst({
 				where: {
@@ -76,8 +80,8 @@ class LoadData {
 				id: eventData.id,
 				apiId: api.id,
 				roundId: round.id,
-				homeTeamId: eventData.competitors.find((c: any) => c.qualifier === 'home'),
-				awayTeamId: eventData.competitors.find((c: any) => c.qualifier === 'away'),
+				homeTeamId: eventData.competitors.find((c: any) => c.qualifier === 'home').id,
+				awayTeamId: eventData.competitors.find((c: any) => c.qualifier === 'away').id,
 				date: eventData.start_time,
 				dateConfirmed: eventData.start_time_confirmed,
 				finished: schedule.sport_event_status.status === 'closed',
@@ -85,25 +89,28 @@ class LoadData {
 			const match = await this.loadMatch(matchData)
 
 			// create stats
-			const scores = schedule.sport_event_status.period_scores
-			const homeStat: GoalStat = {
-				matchId: match!.dataId,
-				teamId: match!.homeTeamId,
-				firstPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 1).home_score,
-				secondPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 2).home_score,
-				totalPeriod: schedule.sport_event_status.home_score,
-			}
-			await this.loadGoalStat(homeStat)
+			const eventStatus = schedule.sport_event_status
+			if (eventStatus.status === 'closed') {
 
-			const awayStat: GoalStat = {
-				matchId: match!.dataId,
-				teamId: match!.awayTeamId,
-				firstPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 1).away_score,
-				secondPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 2).away_score,
-				totalPeriod: schedule.sport_event_status.away_score,
+				const scores = eventStatus.period_scores
+				const homeStat: GoalStat = {
+					matchId: match!.dataId,
+					teamId: match!.homeTeamId,
+					firstPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 1).home_score,
+					secondPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 2).home_score,
+					totalPeriod: eventStatus.home_score,
+				}
+				await this.loadGoalStat(homeStat)
+	
+				const awayStat: GoalStat = {
+					matchId: match!.dataId,
+					teamId: match!.awayTeamId,
+					firstPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 1).away_score,
+					secondPeriod: scores.find((s: any) => s.type === 'regular_period' && s.number === 2).away_score,
+					totalPeriod: eventStatus.away_score,
+				}
+				await this.loadGoalStat(awayStat)
 			}
-			await this.loadGoalStat(awayStat)
-			// const matchStatus = schedule.sport_event_status
 		}
 	}
 

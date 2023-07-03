@@ -23,7 +23,7 @@ class CompetitionsController {
     const seasons = await prisma.season.findMany({ where: { competitionId: competition.dataId } })
     for (const season of seasons) {
       // await LoadData.loadTeams(season.dataId) // ok
-      // await LoadData.loadMatches(season.dataId) // WIP
+      await LoadData.loadMatches(season.dataId) // WIP
     }
 
     res.status(201)
