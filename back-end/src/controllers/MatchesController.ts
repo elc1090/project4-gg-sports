@@ -13,7 +13,9 @@ class MatchesController {
         }
       },
       include: {
-        round: true
+        round: true,
+        awayTeam: true,
+        homeTeam: true,
       }
     }))
   }
