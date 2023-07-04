@@ -4,7 +4,7 @@ import CompetitionsController from './controllers/CompetitionsController'
 import SeasonsController from './controllers/SeasonsController'
 import InitController from './controllers/InitController'
 import TeamsController from './controllers/TeamsController'
-// import MatchesController from './controllers/MatchesController'
+import MatchesController from './controllers/MatchesController'
 
 
 /**
@@ -50,7 +50,7 @@ router.post('/competitions/:id', CompetitionsController.loadCompetition)
 router.get('/seasons/:id', SeasonsController.ListSeasons)
 router.get('/teams/:id', TeamsController.listTeams)
 
-// router.get('/matches', MatchesController.index)
+router.get('/matches/:id', MatchesController.listMatchesBySeason)
 
 router.get('/get-tournament-loaded/:id', (req, res) => {
   res.send('return data from the tournament with id = ' + req.params.id)

@@ -116,6 +116,7 @@ class LoadData {
 
 	private async loadGoalStat(goalStat: GoalStat) {
 		const statType = await prisma.statType.findFirst({ where: { slug: 'goal' } })
+		const isLoaded = await prisma.stat.findFirst({ where: { matchId: goalStat.matchId, teamId: goalStat.teamId } })
 		await prisma.stat.create({
 			data: {
 				matchId: goalStat.matchId,
