@@ -18,7 +18,7 @@ Dashboard para consulta de dados de campeonatos de futebol
 
 #### Deploy
 
-[GG Sport](https://elc1090.github.io/project4-gg-sports/)
+[GG Sport](https://gg-sports-two.vercel.app/)
 
 #### Testes
 
