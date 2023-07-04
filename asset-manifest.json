@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/project4-gg-sports/static/css/main.d9fe749e.css",
+    "main.js": "/project4-gg-sports/static/js/main.a312546d.js",
+    "static/js/787.e3ec4035.chunk.js": "/project4-gg-sports/static/js/787.e3ec4035.chunk.js",
+    "static/media/soccer-ball.png": "/project4-gg-sports/static/media/soccer-ball.f0417acd629e00ab2567.png",
+    "static/media/info.png": "/project4-gg-sports/static/media/info.be7811a8d5f7e19455c5.png",
+    "static/media/campeonato.png": "/project4-gg-sports/static/media/campeonato.e440e67bdd65cd42a486.png",
+    "index.html": "/project4-gg-sports/index.html",
+    "main.d9fe749e.css.map": "/project4-gg-sports/static/css/main.d9fe749e.css.map",
+    "main.a312546d.js.map": "/project4-gg-sports/static/js/main.a312546d.js.map",
+    "787.e3ec4035.chunk.js.map": "/project4-gg-sports/static/js/787.e3ec4035.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d9fe749e.css",
+    "static/js/main.a312546d.js"
+  ]
+}
