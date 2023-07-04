@@ -12,28 +12,35 @@ project4-gg-sports created by GitHub Classroom# Preencha aqui o título do proje
 
 ![Screenshot do projeto](https://mdswanson.com/static/chops-ux-step-4.png "Screenshot do projeto").
 
-
 #### Descrição
 
-Preencha aqui uma descrição sucinta do projeto (tema e funcionalidades)
+Dashboard para consulta de dados de campeonatos de futebol
 
 #### Deploy
 
-Preencha aqui a URL para acesso ao projeto publicado
+[GG Sport](https://elc1090.github.io/project4-gg-sports/)
 
 #### Testes
 
 Preencha aqui sugestões de tarefas a serem realizadas por usuários testadores (por exemplo, cadastro de usuário, inserção de dados, busca, etc.).
 
-
-
 #### Desenvolvedor(es)
-Preencha nomes aqui
-
+Gabriel Caetano e Gustavo Reis
 
 #### Tecnologias
 
-Preencha aqui uma lista detalhada de tecnologias usadas para frontend, backend e persistência de dados
+Back end:
+- NodeJS
+- Typescript
+- ExpressJS
+- Prisma ORM
+  
+Banco de dados:
+- Postgress
+  
+Deploy:
+- Render
+- AWS RDS
 
 #### Ambiente de desenvolvimento
 
@@ -42,15 +49,13 @@ Preencha aqui uma lista detalhada de ferramentas de desenvolvimento usadas
 #### Créditos
 
 Preencha aqui uma lista detalhada de recursos aproveitados no projeto, por exemplo:
-- URL de templates usados
-- URL de icon kits usados
-- Créditos para colegas que colaboraram
+- continuação do trabalho 3
+- API de dados de futebol Sportradar
 
 #### Bastidores
 
 
-Preencha aqui um breve relato dos bastidores e das particularidades do desenvolvimento do projeto, por exemplo: escolha do tema, algum detalhe marcante sobre as tecnologias usadas/aprendidas, bugs encontrados, alguma parte mais trabalhosa de implementar, etc.
-
+Sobre a busca dos dados das ligas, por ser muitos dados se tornou uma requisição bastante demorada, por estar sendo feita de forma sequencial, mas uma alteração que será feita é a refatoração do código e paralelização das requisições que não houverem dependência entre si, em outro projeto similar foi feita essa refatoração e o tempo de execução da requisição foi reduzida em aproximadamente 95% (o que antes levava mais de 10 minutos passou a demorar menos de 1 minuto)
 
 
 ---
