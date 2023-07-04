@@ -1,0 +1,69 @@
+.event-page-container {
+  background-color: #1A1A1A;
+
+  font-family: 'Roboto';
+
+  width: 100%;
+
+  text-align: center;
+
+  display: flex;
+  flex-direction: row;
+}
+
+.event-page-team-logo {
+  width: 200px;
+  height: 200px;
+}
+
+.event-page-versus-icon {
+  width: 50px;
+  height: 50px;
+
+  margin-top: -50px;
+}
+
+.event-page-menu-game-info {
+  background-color: #FFBC2A;
+
+  width: 100%;
+  height: 60px;
+
+  text-align: center;
+  vertical-align: center;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.event-page-menu-game-info p {
+  font-weight: 900;
+
+  width: 75%;
+
+  padding-top: 8px;
+
+  cursor: pointer;
+}
+
+.event-page-menu-tab {
+  background-color: #000;
+  color: #fff;
+
+  width: 100%;
+}
+
+.event-page-lista-historico {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
+}
+
+.event-page-info {
+  width: 100%;
+}
+
+.event-page-charts {
+  display: flex;
+  flex-direction: row;
+}

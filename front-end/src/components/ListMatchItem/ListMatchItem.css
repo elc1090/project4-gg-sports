@@ -1,0 +1,94 @@
+.list-match-item-container {
+  display: flex;
+  flex-direction: row;
+
+  background-color: #fff;
+  color: #000;
+
+  width: 400px;
+  height: 150px;
+
+  padding: 8px 16px 8px 16px;
+
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  text-transform: uppercase;
+}
+
+.list-match-item-container:hover {
+  background-color: #fce8bb;
+}
+
+.list-match-item-match-container {
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+}
+
+.list-match-item-match-team {
+  width: 33.3%;
+  height: 100%;
+
+  padding-top: 20px;
+}
+
+.list-match-item-match-team h1{
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;  
+}
+
+.list-match-item-match-info {
+  width: 33.3%;
+  height: 100%;
+
+  padding-top: 25px;
+}
+
+.list-match-item-event-date {
+  font-size: 15px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 800;
+}
+
+.list-match-item-league-name {
+  font-size: 12px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;  
+  line-height: 10px;
+
+  color: #FFBC2A;
+}
+
+.list-match-item-phase-name {
+  font-size: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;  
+}
+
+img {
+  width:  75px;
+  height: 75px;
+}
+
+.list-match-item-click-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 5%;
+}
+
+.list-match-item-click-icon img {
+  width:  25px;
+  height: 25px;
+
+  cursor: pointer;
+}
+
+.list-match-item-click-icon:hover {
+  background-color: #ffbc2a0d;
+}

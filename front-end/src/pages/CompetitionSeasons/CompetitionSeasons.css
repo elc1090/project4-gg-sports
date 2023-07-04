@@ -1,0 +1,30 @@
+.comp-season-container {
+  background-color: #1A1A1A;
+  width: 100%;
+
+  display: flex;
+  flex-direction: row;
+  
+}
+
+.comp-seasons-season {
+  background-color: #1A1A1A;
+  color: #fff;
+
+  font-family: 'Roboto';
+  font-weight: 900;
+
+  width: 100%;
+
+}
+
+.comp-seasons-season-label {
+  padding-left: 20px;
+}
+
+.comp-season-matches {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  column-gap: 10px;
+}

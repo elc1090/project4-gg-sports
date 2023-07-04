@@ -1,0 +1,97 @@
+.list-league-item-container {
+  background-color: #fff;
+  color: #000;
+
+  font-family: 'Roboto', sans-serif;
+  font-weight: 800;
+
+  width: 200px;
+  height: 250px;
+
+  padding: 8px;
+
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.list-league-item-header {
+  background-color: #fff;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.list-league-item-league-icon {
+  width: 150px;
+  height: 150px;
+}
+
+.list-league-item-info-icon {
+  width: 15px;
+  height: 15px;
+
+  cursor: pointer;
+}
+
+.list-league-item-load-button {
+  background-color: #FFBC2A;
+
+  font-size: 10px;
+
+  height: 20px;
+
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+}
+
+.list-league-item-load-button p {
+  margin-top: 4px;
+}
+
+h1 {
+  font-size: 15px;
+}
+
+.list-league-item-men-gender {
+  background-color: #000;
+  color: #FFBC2A;
+
+  font-size: 15px;
+}
+
+.list-league-item-female-gender {
+  background-color: #FFBC2A;
+
+  font-size: 15px;
+}
+
+.list-league-item-modal-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.list-league-item-close-button {
+  width: 25px;
+  height: 25px;
+
+  padding: 8px;
+
+  background-color: #313132;
+
+  cursor: pointer;
+}
+
+.list-league-item-modal-info {
+  display: flex;
+  flex-direction: row;
+  
+  padding: 10px 10px 10px 10px;
+}
+
+.list-league-item-league-logo {
+  width: 500px;
+  height: 500px;
+}

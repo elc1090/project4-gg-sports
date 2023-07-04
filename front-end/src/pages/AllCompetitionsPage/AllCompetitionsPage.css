@@ -1,0 +1,30 @@
+.all-comp-page-container {
+  background-color: #1A1A1A;
+
+  display: flex;
+  flex-direction: row;
+}
+
+.all-comp-page-list {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+
+  column-gap: 5px;
+  row-gap: 5px;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.all-comp-page-load-more {
+  background-color: #FFBC2A;
+
+  width: 80%;
+  margin-left: 10%;
+
+  font-family: 'Roboto';
+  font-weight: 900;
+  text-align: center;
+
+  cursor: pointer;
+}
